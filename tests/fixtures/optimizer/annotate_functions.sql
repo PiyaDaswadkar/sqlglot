@@ -6200,6 +6200,10 @@ DATETIME;
 REPLACE(tbl.str_col, tbl.str_col, tbl.str_col);
 VARCHAR;
 
+# dialect: mysql
+FLOOR(tbl.double_col);
+BIGINT;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
