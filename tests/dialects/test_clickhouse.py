@@ -954,6 +954,11 @@ ORDER BY (
         self.validate_identity(ctas_alias)
 
     def test_ddl(self):
+        self.validate_identity(
+            "CREATE TABLE t (`projection` Int8)",
+            'CREATE TABLE t ("projection" Int8)',
+        )
+
         db_table_expr = exp.Table(this=None, db=exp.to_identifier("foo"), catalog=None)
         create_with_cluster = exp.Create(
             this=db_table_expr,

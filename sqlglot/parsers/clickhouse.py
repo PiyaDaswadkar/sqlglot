@@ -865,7 +865,7 @@ class ClickHouseParser(parser.Parser):
         return exp.DefinerProperty(this=self._parse_string())
 
     def _parse_projection_def(self) -> exp.ProjectionDef | None:
-        if not self._match_text_seq("PROJECTION"):
+        if not self._match(TokenType.PROJECTION):
             return None
 
         return self.expression(

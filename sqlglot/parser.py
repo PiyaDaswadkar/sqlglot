@@ -727,6 +727,7 @@ class Parser:
         TokenType.PARTITION,
         TokenType.PERCENT,
         TokenType.PIVOT,
+        TokenType.PROJECTION,
         TokenType.PRAGMA,
         TokenType.PUT,
         TokenType.RANGE,
