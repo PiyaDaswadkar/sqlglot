@@ -498,6 +498,7 @@ class SnowflakeParser(parser.Parser):
             expression=seq_get(args, 1),
             null_on_zero_variance=True,
         ),
+        "COUNT_IF": lambda args: exp.CountIf(this=seq_get(args, 0), zero_on_all_null=True),
         "DATE": _build_datetime("DATE", exp.DType.DATE),
         "DATEFROMPARTS": _build_date_from_parts,
         "DATE_FROM_PARTS": _build_date_from_parts,

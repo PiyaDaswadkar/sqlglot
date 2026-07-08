@@ -102,6 +102,7 @@ class Count(Expression, AggFunc):
 
 class CountIf(Expression, AggFunc):
     _sql_names = ["COUNT_IF", "COUNTIF"]
+    arg_types = {"this": True, "zero_on_all_null": False}
 
 
 class CovarPop(Expression, AggFunc):

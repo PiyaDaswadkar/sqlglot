@@ -3153,6 +3153,11 @@ class DuckDBGenerator(generator.Generator):
 
     def countif_sql(self, expression: exp.CountIf) -> str:
         if self.dialect.version >= (1, 2):
+            this = expression.this
+            if expression.args.get("zero_on_all_null") and not isinstance(this, exp.Distinct):
+                # DuckDB >= 1.2's COUNT_IF returns NULL when the condition is NULL on all rows,
+                # so we wrap the condition in IS TRUE to preserve count-like semantics
+                expression = exp.CountIf(this=exp.paren(this).is_(exp.true()))
             return self.function_fallback_sql(expression)
 
         # https://github.com/tobymao/sqlglot/pull/4749

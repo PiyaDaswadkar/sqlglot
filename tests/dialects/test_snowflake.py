@@ -1655,6 +1655,17 @@ class TestSnowflake(Validator):
                 "snowflake": "SELECT BOOLXOR_AGG(c1) FROM test",
             },
         )
+        self.validate_all(
+            # Snowflake's COUNT_IF returns 0 when the condition is NULL on all rows of a
+            # non-empty input, whereas DuckDB >= 1.2's returns NULL; IS TRUE preserves the former
+            "SELECT COUNT_IF(x > 1) FROM t",
+            write={
+                "snowflake": "SELECT COUNT_IF(x > 1) FROM t",
+                "duckdb": "SELECT COUNT_IF((x > 1) IS TRUE) FROM t",
+                "duckdb, version=1.2": "SELECT COUNT_IF((x > 1) IS TRUE) FROM t",
+                "duckdb, version=1.1": "SELECT SUM(CASE WHEN x > 1 THEN 1 ELSE 0 END) FROM t",
+            },
+        )
         for suffix in (
             "",
             " OVER ()",
