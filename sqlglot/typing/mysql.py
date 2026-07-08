@@ -23,6 +23,7 @@ EXPRESSION_METADATA = {
         for expr_type in {
             exp.Elt,
             exp.Replace,
+            exp.Stuff,  # insert function
         }
     },
     **{
