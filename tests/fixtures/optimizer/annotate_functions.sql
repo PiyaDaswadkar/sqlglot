@@ -6379,6 +6379,10 @@ VARCHAR;
 LPAD(tbl.str_col, tbl.int_col, tbl.str_col);
 VARCHAR;
 
+# dialect: mysql
+LEFT(tbl.str_col, tbl.int_col);
+VARCHAR;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
