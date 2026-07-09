@@ -6375,6 +6375,10 @@ VARCHAR;
 HEX(tbl.str_col);
 VARCHAR;
 
+# dialect: mysql
+LPAD(tbl.str_col, tbl.int_col, tbl.str_col);
+VARCHAR;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
