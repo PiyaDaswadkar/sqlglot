@@ -6391,6 +6391,13 @@ VARCHAR;
 RPAD(tbl.bin_col, tbl.int_col, tbl.str_col);
 BINARY;
 
+# dialect: mysql
+LEFT(tbl.str_col, tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+LEFT(tbl.bin_col, tbl.int_col);
+BINARY;
 
 --------------------------------------
 -- DuckDB
