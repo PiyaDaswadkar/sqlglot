@@ -16,6 +16,7 @@ EXPRESSION_METADATA = {
         for expr_type in {
             exp.CurrentTimestamp,
             exp.Localtime,
+            exp.Localtimestamp,
         }
     },
     **{
