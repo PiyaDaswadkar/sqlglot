@@ -6380,8 +6380,17 @@ LPAD(tbl.str_col, tbl.int_col, tbl.str_col);
 VARCHAR;
 
 # dialect: mysql
-LEFT(tbl.str_col, tbl.int_col);
+LPAD(tbl.bin_col, tbl.int_col, tbl.str_col);
+BINARY;
+
+# dialect: mysql
+RPAD(tbl.str_col, tbl.int_col, tbl.str_col);
 VARCHAR;
+
+# dialect: mysql
+RPAD(tbl.bin_col, tbl.int_col, tbl.str_col);
+BINARY;
+
 
 --------------------------------------
 -- DuckDB

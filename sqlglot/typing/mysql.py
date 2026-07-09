@@ -23,8 +23,6 @@ EXPRESSION_METADATA = {
         for expr_type in {
             exp.Elt,
             exp.Hex,
-            exp.Left,
-            exp.Pad,
             exp.Replace,
             exp.Stuff,  # insert function
         }
@@ -35,6 +33,12 @@ EXPRESSION_METADATA = {
             exp.Month,
             exp.Second,
             exp.Week,
+        }
+    },
+    **{
+        expr_type: {"annotator": lambda self, e: self._annotate_by_args(e, "this")}
+        for expr_type in {
+            exp.Pad,
         }
     },
 }
