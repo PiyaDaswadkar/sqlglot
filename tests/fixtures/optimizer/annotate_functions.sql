@@ -6399,6 +6399,10 @@ VARCHAR;
 LEFT(tbl.bin_col, tbl.int_col);
 BINARY;
 
+# dialect: mysql
+LOCALTIMESTAMP();
+DATETIME;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
