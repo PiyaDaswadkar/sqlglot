@@ -34,6 +34,7 @@ EXPRESSION_METADATA = {
             exp.Month,
             exp.Second,
             exp.Week,
+            exp.Minute,
         }
     },
     **{

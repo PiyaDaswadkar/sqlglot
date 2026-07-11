@@ -6411,6 +6411,10 @@ DATETIME;
 LOCALTIMESTAMP(3);
 DATETIME;
 
+# dialect: mysql
+MINUTE(tbl.timestamp_col);
+INT;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
