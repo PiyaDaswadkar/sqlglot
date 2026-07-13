@@ -18,7 +18,7 @@ EXPRESSION_METADATA = {
     },
     exp.Corr: {
         "annotator": lambda self, e: self._set_type(
-            e, exp.DataType.build("Float64", dialect="clickhouse", nullable=False)
+            e, exp.DataType.build("Float64", dialect="clickhouse")
         )
     },
 }

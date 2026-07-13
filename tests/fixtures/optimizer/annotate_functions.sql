@@ -6741,15 +6741,19 @@ FIXEDSTRING(16);
 
 # dialect: clickhouse
 CORR(tbl.int_col, tbl.int_col);
-DOUBLE;
+FLOAT64;
 
 # dialect: clickhouse
 CORR(tbl.float_col, tbl.float_col);
-DOUBLE;
+FLOAT64;
 
 # dialect: clickhouse
-CORR(tbl.int_col, NULL);
-DOUBLE;
+CORR(tbl.int_col, tbl.float_col);
+FLOAT64;
+
+# dialect: clickhouse
+CORR(tbl.float_col, tbl.int_col);
+FLOAT64;
 
 --------------------------------------
 -- IGNORE NULLS / RESPECT NULLS
