@@ -44,4 +44,10 @@ EXPRESSION_METADATA = {
             exp.Left,
         }
     },
+    **{
+        expr_type: {"returns": exp.DType.TIME}
+        for expr_type in {
+            exp.TimeFromParts,
+        }
+    },
 }
