@@ -26,7 +26,6 @@ EXPRESSION_METADATA = {
             exp.Hex,
             exp.NumberToStr,  # format()
             exp.Replace,
-            exp.Reverse,
             exp.Stuff,  # insert function
         }
     },
@@ -40,23 +39,17 @@ EXPRESSION_METADATA = {
         }
     },
     **{
+        expr_type: {"returns": exp.DType.TIME}
+        for expr_type in {
+            exp.TimeFromParts,
+        }
+    },
+    **{
         expr_type: {"annotator": lambda self, e: self._annotate_by_args(e, "this")}
         for expr_type in {
             exp.Pad,
             exp.Left,
             exp.Right,
-        }
-    },
-    **{
-        expr_type: {"returns": exp.DType.TIME}
-        for expr_type in {
-            exp.TimeFromParts,
-        }
-    },
-    **{
-        expr_type: {"returns": exp.DType.TIME}
-        for expr_type in {
-            exp.TimeFromParts,
         }
     },
 }
