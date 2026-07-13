@@ -6411,6 +6411,10 @@ DATETIME;
 LOCALTIMESTAMP(3);
 DATETIME;
 
+# dialect: mysql
+FORMAT(tbl.double_col, tbl.int_col);
+VARCHAR;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------

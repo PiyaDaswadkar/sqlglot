@@ -24,6 +24,7 @@ EXPRESSION_METADATA = {
         for expr_type in {
             exp.Elt,
             exp.Hex,
+            exp.NumberToStr,  # format()
             exp.Replace,
             exp.Stuff,  # insert function
         }
