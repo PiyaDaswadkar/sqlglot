@@ -6412,6 +6412,34 @@ LOCALTIMESTAMP(3);
 DATETIME;
 
 # dialect: mysql
+FORMAT(tbl.double_col, tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+FORMAT(tbl.double_col, tbl.int_col, tbl.str_col);
+VARCHAR;
+
+# dialect: mysql
+MAKETIME(tbl.int_col, tbl.int_col, tbl.int_col);
+TIME;
+
+# dialect: mysql
+MAKETIME('12', '15', '30');
+TIME;
+
+# dialect: mysql
+MINUTE(tbl.timestamp_col);
+INT;
+
+# dialect: mysql
+MINUTE(tbl.str_col);
+INT;
+
+# dialect: mysql
+MINUTE(tbl.int_col);
+INT;
+
+# dialect: mysql
 RIGHT(tbl.str_col, tbl.int_col);
 VARCHAR;
 
@@ -6738,6 +6766,23 @@ VARCHAR;
 # dialect: clickhouse
 MD5(tbl.str_col);
 FIXEDSTRING(16);
+
+# dialect: clickhouse
+CORR(tbl.int_col, tbl.int_col);
+FLOAT64;
+
+# dialect: clickhouse
+CORR(tbl.float_col, tbl.float_col);
+FLOAT64;
+
+# dialect: clickhouse
+CORR(tbl.int_col, tbl.float_col);
+FLOAT64;
+
+# dialect: clickhouse
+CORR(tbl.float_col, tbl.int_col);
+FLOAT64;
+
 --------------------------------------
 -- IGNORE NULLS / RESPECT NULLS
 --------------------------------------

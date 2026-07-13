@@ -36,6 +36,7 @@ EXPRESSION_METADATA = {
             exp.Month,
             exp.Second,
             exp.Week,
+            exp.Minute,
         }
     },
     **{
@@ -44,6 +45,12 @@ EXPRESSION_METADATA = {
             exp.Pad,
             exp.Left,
             exp.Right,
+        }
+    },
+    **{
+        expr_type: {"returns": exp.DType.TIME}
+        for expr_type in {
+            exp.TimeFromParts,
         }
     },
     **{
