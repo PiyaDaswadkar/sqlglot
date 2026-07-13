@@ -26,6 +26,7 @@ EXPRESSION_METADATA = {
             exp.Hex,
             exp.NumberToStr,  # format()
             exp.Replace,
+            exp.Reverse,
             exp.Stuff,  # insert function
         }
     },
@@ -43,6 +44,13 @@ EXPRESSION_METADATA = {
         for expr_type in {
             exp.Pad,
             exp.Left,
+            exp.Right,
+        }
+    },
+    **{
+        expr_type: {"returns": exp.DType.TIME}
+        for expr_type in {
+            exp.TimeFromParts,
         }
     },
     **{

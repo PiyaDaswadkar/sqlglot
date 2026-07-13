@@ -6439,6 +6439,14 @@ INT;
 MINUTE(tbl.int_col);
 INT;
 
+# dialect: mysql
+RIGHT(tbl.str_col, tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+RIGHT(tbl.bin_col, tbl.int_col);
+BINARY;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
