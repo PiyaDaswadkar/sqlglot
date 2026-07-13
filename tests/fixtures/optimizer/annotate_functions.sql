@@ -6415,6 +6415,10 @@ DATETIME;
 FORMAT(tbl.double_col, tbl.int_col);
 VARCHAR;
 
+# dialect: mysql
+FORMAT(tbl.double_col, tbl.int_col, tbl.str_col);
+VARCHAR;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
