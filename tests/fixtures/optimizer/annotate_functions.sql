@@ -6419,7 +6419,16 @@ VARCHAR;
 FORMAT(tbl.double_col, tbl.int_col, tbl.str_col);
 VARCHAR;
 
+# dialect: mysql
+MAKETIME(tbl.int_col, tbl.int_col, tbl.int_col);
+TIME;
+
+# dialect: mysql
+MAKETIME('12', '15', '30');
+TIME;
+
 --------------------------------------
+
 -- DuckDB
 --------------------------------------
 
