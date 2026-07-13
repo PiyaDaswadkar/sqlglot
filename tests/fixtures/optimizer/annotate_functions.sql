@@ -6427,6 +6427,18 @@ TIME;
 MAKETIME('12', '15', '30');
 TIME;
 
+# dialect: mysql
+MINUTE(tbl.timestamp_col);
+INT;
+
+# dialect: mysql
+MINUTE(tbl.str_col);
+INT;
+
+# dialect: mysql
+MINUTE(tbl.int_col);
+INT;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
