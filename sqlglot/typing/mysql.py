@@ -1,7 +1,22 @@
 from __future__ import annotations
 
+import typing as t
+
 from sqlglot import exp
 from sqlglot.typing import EXPRESSION_METADATA
+
+if t.TYPE_CHECKING:
+    from sqlglot.optimizer.annotate_types import TypeAnnotator
+
+
+def _annotate_reverse(self: TypeAnnotator, expression: exp.Reverse) -> exp.Reverse:
+    if expression.this.is_type(exp.DType.BINARY, exp.DType.VARBINARY, exp.DType.UNKNOWN):
+        self._annotate_by_args(expression, "this")
+    else:
+        self._set_type(expression, exp.DType.VARCHAR)
+
+    return expression
+
 
 EXPRESSION_METADATA = {
     **EXPRESSION_METADATA,
@@ -52,11 +67,5 @@ EXPRESSION_METADATA = {
             exp.Right,
         }
     },
-    exp.Reverse: {
-        "annotator": lambda self, e: (
-            self._annotate_by_args(e, "this")
-            if e.this.is_type(exp.DataType.Type.BINARY)
-            else self._set_type(e, exp.DataType.Type.VARCHAR)
-        )
-    },
+    exp.Reverse: {"annotator": _annotate_reverse},
 }
