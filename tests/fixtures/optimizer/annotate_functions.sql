@@ -6488,6 +6488,18 @@ LOCALTIMESTAMP(3);
 DATETIME;
 
 # dialect: mysql
+REVERSE(tbl.str_col);
+VARCHAR;
+
+# dialect: mysql
+REVERSE(tbl.bin_col);
+BINARY;
+
+# dialect: mysql
+REVERSE(tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
 FORMAT(tbl.double_col, tbl.int_col);
 VARCHAR;
 

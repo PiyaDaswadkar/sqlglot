@@ -52,4 +52,11 @@ EXPRESSION_METADATA = {
             exp.Right,
         }
     },
+    exp.Reverse: {
+        "annotator": lambda self, e: (
+            self._annotate_by_args(e, "this")
+            if e.this.is_type(exp.DataType.Type.BINARY)
+            else self._set_type(e, exp.DataType.Type.VARCHAR)
+        )
+    },
 }
