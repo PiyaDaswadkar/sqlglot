@@ -16,6 +16,7 @@ EXPRESSION_METADATA = {
             exp.RegrSxx,
             exp.RegrSxy,
             exp.RegrSyy,
+            exp.Rint,
         }
     },
     **{
