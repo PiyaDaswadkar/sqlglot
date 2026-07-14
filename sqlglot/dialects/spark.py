@@ -16,6 +16,10 @@ class Spark(Spark2):
     ARRAY_FUNCS_PROPAGATES_NULLS = True
     EXPRESSION_METADATA = EXPRESSION_METADATA.copy()
 
+    # Spark 3+ parses MM/dd strictly by default (single-digit months/days don't parse); the
+    # metaclass re-promotes the strict tokens Spark2 stripped, from this flag alone.
+    STRICT_TIME_PARSING = True
+
     class Tokenizer(Spark2.Tokenizer):
         STRING_ESCAPES_ALLOWED_IN_RAW_STRINGS = False
 

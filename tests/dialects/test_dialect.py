@@ -759,11 +759,11 @@ class TestDialect(Validator):
             write={
                 "mysql": "STR_TO_DATE(x, '%Y-%m-%dT%T')",
                 "duckdb": "STRPTIME(x, '%Y-%m-%dT%H:%M:%S')",
-                "hive": "CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(x, 'yyyy-MM-ddTHH:mm:ss')) AS TIMESTAMP)",
+                "hive": "CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(x, 'yyyy-M-dTHH:mm:ss')) AS TIMESTAMP)",
                 "presto": "DATE_PARSE(x, '%Y-%m-%dT%T')",
                 "drill": "TO_TIMESTAMP(x, 'yyyy-MM-dd''T''HH:mm:ss')",
                 "redshift": "TO_TIMESTAMP(x, 'YYYY-MM-DDTHH24:MI:SS')",
-                "spark": "TO_TIMESTAMP(x, 'yyyy-MM-ddTHH:mm:ss')",
+                "spark": "TO_TIMESTAMP(x, 'yyyy-M-dTHH:mm:ss')",
             },
         )
         self.validate_all(
@@ -771,12 +771,12 @@ class TestDialect(Validator):
             write={
                 "drill": "TO_TIMESTAMP('2020-01-01', 'yyyy-MM-dd')",
                 "duckdb": "STRPTIME('2020-01-01', '%Y-%m-%d')",
-                "hive": "CAST('2020-01-01' AS TIMESTAMP)",
+                "hive": "CAST(FROM_UNIXTIME(UNIX_TIMESTAMP('2020-01-01', 'yyyy-M-d')) AS TIMESTAMP)",
                 "oracle": "TO_TIMESTAMP('2020-01-01', 'YYYY-MM-DD')",
                 "postgres": "TO_TIMESTAMP('2020-01-01', 'YYYY-MM-DD')",
                 "presto": "DATE_PARSE('2020-01-01', '%Y-%m-%d')",
                 "redshift": "TO_TIMESTAMP('2020-01-01', 'YYYY-MM-DD')",
-                "spark": "TO_TIMESTAMP('2020-01-01', 'yyyy-MM-dd')",
+                "spark": "TO_TIMESTAMP('2020-01-01', 'yyyy-M-d')",
             },
         )
         self.validate_all(
@@ -797,7 +797,7 @@ class TestDialect(Validator):
             "STR_TO_UNIX('2020-01-01', '%Y-%m-%d')",
             write={
                 "duckdb": "EPOCH(STRPTIME('2020-01-01', '%Y-%m-%d'))",
-                "hive": "UNIX_TIMESTAMP('2020-01-01', 'yyyy-MM-dd')",
+                "hive": "UNIX_TIMESTAMP('2020-01-01', 'yyyy-M-d')",
                 "presto": "TO_UNIXTIME(COALESCE(TRY(DATE_PARSE(CAST('2020-01-01' AS VARCHAR), '%Y-%m-%d')), PARSE_DATETIME(DATE_FORMAT(CAST('2020-01-01' AS TIMESTAMP), '%Y-%m-%d'), 'yyyy-MM-dd')))",
                 "starrocks": "UNIX_TIMESTAMP('2020-01-01', '%Y-%m-%d')",
                 "doris": "UNIX_TIMESTAMP('2020-01-01', '%Y-%m-%d')",
@@ -1217,9 +1217,9 @@ class TestDialect(Validator):
                 "drill": "TO_DATE(x, 'yyyy-MM-dd''T''HH:mm:ss')",
                 "mysql": "STR_TO_DATE(x, '%Y-%m-%dT%T')",
                 "starrocks": "STR_TO_DATE(x, '%Y-%m-%dT%T')",
-                "hive": "CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(x, 'yyyy-MM-ddTHH:mm:ss')) AS DATE)",
+                "hive": "CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(x, 'yyyy-M-dTHH:mm:ss')) AS DATE)",
                 "presto": "CAST(DATE_PARSE(x, '%Y-%m-%dT%T') AS DATE)",
-                "spark": "TO_DATE(x, 'yyyy-MM-ddTHH:mm:ss')",
+                "spark": "TO_DATE(x, 'yyyy-M-dTHH:mm:ss')",
                 "doris": "STR_TO_DATE(x, '%Y-%m-%dT%T')",
             },
         )
@@ -1229,9 +1229,9 @@ class TestDialect(Validator):
                 "drill": "CAST(x AS DATE)",
                 "mysql": "STR_TO_DATE(x, '%Y-%m-%d')",
                 "starrocks": "STR_TO_DATE(x, '%Y-%m-%d')",
-                "hive": "CAST(x AS DATE)",
+                "hive": "CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(x, 'yyyy-M-d')) AS DATE)",
                 "presto": "CAST(DATE_PARSE(x, '%Y-%m-%d') AS DATE)",
-                "spark": "TO_DATE(x)",
+                "spark": "TO_DATE(x, 'yyyy-M-d')",
                 "doris": "STR_TO_DATE(x, '%Y-%m-%d')",
             },
         )
