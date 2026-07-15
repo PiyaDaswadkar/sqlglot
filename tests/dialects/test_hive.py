@@ -384,6 +384,8 @@ class TestHive(Validator):
         )
 
     def test_time(self):
+        # A missing parse format falls back to plain CAST, instead of UNIX_TIMESTAMP(x, None)
+        self.validate_all("STR_TO_DATE(x)", write={"hive": "CAST(x AS DATE)"})
         self.validate_all(
             "(UNIX_TIMESTAMP(y) - UNIX_TIMESTAMP(x)) * 1000",
             read={
@@ -487,7 +489,7 @@ class TestHive(Validator):
                 "presto": "TO_UNIXTIME(COALESCE(TRY(DATE_PARSE(CAST(x AS VARCHAR), '%Y-%m-%d %T')), PARSE_DATETIME(DATE_FORMAT(x, '%Y-%m-%d %T'), 'yyyy-MM-dd HH:mm:ss')))",
                 "hive": "UNIX_TIMESTAMP(x)",
                 "spark": "UNIX_TIMESTAMP(x)",
-                "": "STR_TO_UNIX(x, '%Y-%m-%d %H:%M:%S')",
+                "": "STR_TO_UNIX(x, '%Y-%mstrict-%dstrict %H:%M:%S')",
             },
         )
 
