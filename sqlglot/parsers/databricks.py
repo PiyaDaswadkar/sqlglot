@@ -64,6 +64,12 @@ class DatabricksParser(SparkParser):
             self._match_r_paren()
         return self.expression(exp.CurrentDate())
 
+    def _parse_primary_key_part(self) -> exp.Expr | None:
+        this = super()._parse_primary_key_part()
+        if this and self._match_text_seq("TIMESERIES"):
+            return self.expression(exp.TimeseriesKey(this=this))
+        return this
+
     def _parse_cluster_property(self):
         if self._match_texts(("AUTO", "NONE")):
             return self.expression(exp.ClusterProperty(this=self._prev.text.upper()))

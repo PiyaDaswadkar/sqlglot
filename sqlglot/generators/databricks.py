@@ -93,6 +93,9 @@ class DatabricksGenerator(SparkGenerator):
 
         return super().columndef_sql(expression, sep)
 
+    def timeserieskey_sql(self, expression: exp.TimeseriesKey) -> str:
+        return f"{self.sql(expression, 'this')} TIMESERIES"
+
     def jsonpath_sql(self, expression: exp.JSONPath) -> str:
         expression.set("escape", None)
         path = super().jsonpath_sql(expression)

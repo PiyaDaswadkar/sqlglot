@@ -3718,6 +3718,10 @@ class Generator:
         options = f" {options}" if options else ""
         return f"PRIMARY KEY{this} ({expressions}){include}{options}"
 
+    def timeserieskey_sql(self, expression: exp.TimeseriesKey) -> str:
+        self.unsupported("TIMESERIES primary key columns are not supported")
+        return self.sql(expression, "this")
+
     def if_sql(self, expression: exp.If) -> str:
         return self.case_sql(exp.Case(ifs=[expression], default=expression.args.get("false")))
 
