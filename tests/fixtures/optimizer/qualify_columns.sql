@@ -793,6 +793,41 @@ WITH t1 AS (SELECT 1 AS id), t2 AS (SELECT 2 AS id) SELECT STRUCT(id AS col) AS 
 WITH t1 AS (SELECT 1 AS id), t2 AS (SELECT 2 AS id) SELECT STRUCT(COALESCE(t1.id, t2.id) AS col) AS my_field FROM t1 AS t1 JOIN t2 AS t2 ON t1.id = t2.id;
 
 --------------------------------------
+-- Natural join
+--------------------------------------
+-- A NATURAL JOIN is expanded to a USING join over the common columns.
+SELECT b FROM x NATURAL JOIN y;
+SELECT COALESCE(x.b, y.b) AS b FROM x AS x JOIN y AS y ON x.b = y.b;
+
+SELECT * FROM x NATURAL JOIN y;
+SELECT x.a AS a, COALESCE(x.b, y.b) AS b, y.c AS c FROM x AS x JOIN y AS y ON x.b = y.b;
+
+SELECT a FROM x NATURAL JOIN z;
+SELECT x.a AS a FROM x AS x JOIN z AS z ON x.b = z.b;
+
+-- Chained NATURAL JOINs intersect against all columns accumulated so far, so the
+-- second join's common columns include those contributed by y.
+SELECT b FROM x NATURAL JOIN y NATURAL JOIN z;
+SELECT COALESCE(x.b, y.b, z.b) AS b FROM x AS x JOIN y AS y ON x.b = y.b JOIN z AS z ON COALESCE(x.b, y.b) = z.b AND y.c = z.c;
+
+-- No common columns: there is no USING list to expand into, so NATURAL is left
+-- in place for the engine to reject or cross join as it sees fit.
+# execute: false
+SELECT a, d FROM x NATURAL LEFT JOIN w;
+SELECT x.a AS a, w.d AS d FROM x AS x NATURAL LEFT JOIN w AS w;
+
+-- An unknown schema on either side makes the common columns unknowable.
+# execute: false
+# validate_qualify_columns: false
+SELECT * FROM x NATURAL JOIN unknown_table;
+SELECT * FROM x AS x NATURAL JOIN unknown_table AS unknown_table;
+
+# execute: false
+# validate_qualify_columns: false
+SELECT * FROM unknown_table NATURAL JOIN x;
+SELECT * FROM unknown_table AS unknown_table NATURAL JOIN x AS x;
+
+--------------------------------------
 -- Hint with table reference
 --------------------------------------
 # dialect: spark

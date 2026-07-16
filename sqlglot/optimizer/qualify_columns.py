@@ -217,7 +217,7 @@ def _expand_using(scope: Scope, resolver: Resolver) -> dict[str, t.Any]:
     # Mapping of automatically joined column names to an ordered set of source names (dict).
     column_tables: dict[str, dict[str, t.Any]] = {}
 
-    if not any(join.args.get("using") for join in joins):
+    if not any(join.args.get("using") or join.method == "NATURAL" for join in joins):
         return column_tables
 
     for source_name in ordered:
@@ -231,11 +231,23 @@ def _expand_using(scope: Scope, resolver: Resolver) -> dict[str, t.Any]:
         join_table = join.alias_or_name
         ordered.append(join_table)
 
+        join_columns = resolver.get_source_columns(join_table)
+
         using = join.args.get("using")
+        if using is None and join.method == "NATURAL":
+            # A NATURAL JOIN is a USING join over the columns common to both sides; when
+            # those can't be determined (unknown schema, no common columns), NATURAL stays
+            if columns and "*" not in columns and join_columns and "*" not in join_columns:
+                using = [
+                    exp.to_identifier(column_name)
+                    for column_name in columns
+                    if column_name in join_columns
+                ]
+                if using:
+                    join.set("method", None)
         if not using:
             continue
 
-        join_columns = resolver.get_source_columns(join_table)
         conditions = []
         using_identifier_count = len(using)
         is_semi_or_anti_join = join.is_semi_or_anti_join
