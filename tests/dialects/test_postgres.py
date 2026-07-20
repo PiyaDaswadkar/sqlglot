@@ -1579,6 +1579,24 @@ FROM json_data, field_ids""",
             },
         )
 
+    def test_unicode_string(self):
+        self.validate_identity("SELECT u & 5 FROM t")
+        self.validate_identity("SELECT (U&'\\FE01' || 'Test literal') AS label FROM data")
+        self.validate_identity("SELECT U&'d!0061t!+000061' UESCAPE '!' AS label")
+        self.validate_identity(
+            "SELECT u&'\\0441\\043B\\043E\\043D'", "SELECT U&'\\0441\\043B\\043E\\043D'"
+        )
+
+        self.validate_all(
+            "SELECT U&'Hello winter \\2603 !'",
+            read={
+                "presto": "SELECT U&'Hello winter \\2603 !'",
+            },
+            write={
+                "presto": "SELECT U&'Hello winter \\2603 !'",
+            },
+        )
+
     def test_variance(self):
         self.validate_identity(
             "VAR_SAMP(x)",
