@@ -31,7 +31,10 @@ def _is_self_referencing_cte(scope: Scope) -> bool:
         isinstance(cte, exp.CTE)
         and isinstance(cte.parent, exp.With)
         and cte.parent.recursive
-        and any(table.name == cte.alias for table in scope.expression.find_all(exp.Table))
+        and any(
+            not table.db and table.name == cte.alias
+            for table in scope.expression.find_all(exp.Table)
+        )
     )
 
 

@@ -2541,6 +2541,52 @@ SELECT :with_,WITH :expressions,CTE :this,UNION :this,SELECT :expressions,1,:exp
         cte = optimized.find(exp.CTE)
         self.assertIn("link", {select.alias_or_name for select in cte.this.selects})
 
+    def test_pushdown_projections_prunes_non_self_referencing_ctes(self):
+        # WITH RECURSIVE flags every chained CTE as recursive, but CTEs that don't
+        # actually reference themselves are still prunable
+        optimized = optimizer.optimize(
+            parse_one(
+                """
+                WITH RECURSIVE t AS (
+                  SELECT id, link FROM graph WHERE id = 1
+                  UNION ALL
+                  SELECT g.id, g.link FROM graph AS g, t WHERE g.id = t.link
+                ), helper AS (
+                  SELECT id, link, junk FROM graph LIMIT 5
+                )
+                SELECT t.id FROM t JOIN helper ON t.id = helper.id
+                """,
+                read="postgres",
+            ),
+            schema={"graph": {"id": "INT", "link": "INT", "junk": "INT"}},
+            dialect="postgres",
+        )
+
+        t_cte, helper_cte = optimized.find_all(exp.CTE)
+        self.assertEqual({s.alias_or_name for s in t_cte.this.selects}, {"id", "link"})
+        self.assertEqual({s.alias_or_name for s in helper_cte.this.selects}, {"id"})
+
+        # A db-qualified table that shares the CTE's name is not a self-reference
+        optimized = optimizer.optimize(
+            parse_one(
+                """
+                WITH RECURSIVE t AS (
+                  SELECT id, link FROM db.t
+                  UNION ALL
+                  SELECT id, link FROM db.t
+                )
+                SELECT id FROM t
+                """,
+                read="postgres",
+            ),
+            schema={"db": {"t": {"id": "INT", "link": "INT"}}},
+            dialect="postgres",
+        )
+
+        union = optimized.find(exp.CTE).this
+        for side in (union.this, union.expression):
+            self.assertEqual({s.alias_or_name for s in side.selects}, {"id"})
+
     def test_schema_with_spaces(self):
         schema = {
             "a": {
