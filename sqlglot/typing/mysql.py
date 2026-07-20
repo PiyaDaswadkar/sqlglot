@@ -18,6 +18,13 @@ def _annotate_reverse(self: TypeAnnotator, expression: exp.Reverse) -> exp.Rever
     return expression
 
 
+def _annotate_truncate(self: TypeAnnotator, expression: exp.Trunc) -> exp.Expr:
+    if expression.this.is_type(*exp.DataType.TEXT_TYPES):
+        return self._set_type(expression, exp.DType.DOUBLE)
+
+    return self._annotate_by_args(expression, "this")
+
+
 EXPRESSION_METADATA = {
     **EXPRESSION_METADATA,
     **{
@@ -68,4 +75,5 @@ EXPRESSION_METADATA = {
         }
     },
     exp.Reverse: {"annotator": _annotate_reverse},
+    exp.Trunc: {"annotator": _annotate_truncate},
 }
