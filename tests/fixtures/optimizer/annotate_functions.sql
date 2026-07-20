@@ -6564,7 +6564,7 @@ RIGHT(tbl.bin_col, tbl.int_col);
 BINARY;
 
 # dialect: mysql
-TRUNCATE(tbl.int_col, tbl.int_col);
+TRUNCATE(tbl.bigint_col, tbl.int_col);
 BIGINT;
 
 # dialect: mysql
