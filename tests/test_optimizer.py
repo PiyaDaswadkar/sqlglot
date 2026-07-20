@@ -418,6 +418,31 @@ class TestOptimizer(unittest.TestCase):
             'WITH RECURSIVE "t"("n") AS (SELECT 1 AS "n" UNION ALL SELECT "t"."n" + 1 AS "n" FROM "t" AS "t" WHERE "t"."n" < 5) SELECT "t"."n" AS "n" FROM "t" AS "t"',
         )
 
+        # Same, but with a parenthesized recursive part: its scope is the inner query, so the
+        # union's right arm must be unnested for the check above to kick in
+        self.assertEqual(
+            optimizer.qualify.qualify(
+                parse_one(
+                    "WITH RECURSIVE t(n) AS (SELECT 1 AS n UNION ALL (SELECT n + 1 AS n FROM t WHERE n < 5)) SELECT * FROM t"
+                )
+            ).sql(),
+            'WITH RECURSIVE "t"("n") AS (SELECT 1 AS "n" UNION ALL (SELECT "t"."n" + 1 AS "n" FROM "t" AS "t" WHERE "t"."n" < 5)) SELECT "t"."n" AS "n" FROM "t" AS "t"',
+        )
+
+        # Programmatic set operations with VALUES operands must not crash the Query-typed
+        # left/right accessors in compiled builds
+        with self.assertRaises(OptimizeError):
+            optimizer.qualify.qualify(
+                exp.select("*").from_(
+                    exp.Union(
+                        this=exp.select("a").from_("x"),
+                        expression=parse_one("VALUES (2)"),
+                        distinct=False,
+                        side="LEFT",
+                    ).subquery("s")
+                )
+            )
+
         self.assertEqual(
             optimizer.qualify.qualify(
                 parse_one(
@@ -1700,6 +1725,10 @@ SELECT :with_,WITH :expressions,CTE :this,UNION :this,SELECT :expressions,1,:exp
                     result.type.sql(dialect),
                     exp.DataType.build(expected, dialect=dialect).sql(dialect),
                 )
+
+        # Programmatic set operations with VALUES operands must not crash the Query-typed
+        # left/right accessors in compiled builds
+        annotate_types(exp.select("*").from_(exp.select("1").union("VALUES (2)").subquery("s")))
 
     def test_annotate_types_caches_schema_lookups(self):
         schema = MappingSchema({"t": {"a": "INT"}})
