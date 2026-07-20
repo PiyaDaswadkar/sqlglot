@@ -7,6 +7,7 @@ from collections import defaultdict
 from sqlglot import expressions as exp
 from sqlglot.helper import find_new_name, seq_get
 from sqlglot.optimizer.scope import Scope, traverse_scope
+from sqlglot.schema import Schema
 
 if t.TYPE_CHECKING:
     from sqlglot._typing import E
@@ -14,7 +15,9 @@ if t.TYPE_CHECKING:
     FromOrJoin = t.Union[exp.From, exp.Join]
 
 
-def merge_subqueries(expression: E, leave_tables_isolated: bool = False) -> E:
+def merge_subqueries(
+    expression: E, leave_tables_isolated: bool = False, schema: Schema | None = None
+) -> E:
     """
     Rewrite sqlglot AST to merge derived tables into the outer query.
 
@@ -37,11 +40,12 @@ def merge_subqueries(expression: E, leave_tables_isolated: bool = False) -> E:
     Args:
         expression (sqlglot.Expr): expression to optimize
         leave_tables_isolated (bool):
+        schema: database schema used to look up table columns for merge-safety checks.
     Returns:
         sqlglot.Expr: optimized expression
     """
-    expression = merge_ctes(expression, leave_tables_isolated)
-    expression = merge_derived_tables(expression, leave_tables_isolated)
+    expression = merge_ctes(expression, leave_tables_isolated, schema=schema)
+    expression = merge_derived_tables(expression, leave_tables_isolated, schema=schema)
     return expression
 
 
@@ -67,7 +71,9 @@ SAFE_TO_REPLACE_UNWRAPPED = (
 )
 
 
-def merge_ctes(expression: E, leave_tables_isolated: bool = False) -> E:
+def merge_ctes(
+    expression: E, leave_tables_isolated: bool = False, schema: Schema | None = None
+) -> E:
     scopes = traverse_scope(expression)
 
     # All places where we select from CTEs.
@@ -89,7 +95,7 @@ def merge_ctes(expression: E, leave_tables_isolated: bool = False) -> E:
         from_or_join = table.find_ancestor(exp.From, exp.Join)
         if not isinstance(from_or_join, (exp.From, exp.Join)):
             continue
-        if _mergeable(outer_scope, inner_scope, leave_tables_isolated, from_or_join):
+        if _mergeable(outer_scope, inner_scope, leave_tables_isolated, from_or_join, schema=schema):
             alias = table.alias_or_name
             _rename_inner_sources(outer_scope, inner_scope, alias)
             _merge_from(
@@ -105,7 +111,9 @@ def merge_ctes(expression: E, leave_tables_isolated: bool = False) -> E:
     return expression
 
 
-def merge_derived_tables(expression: E, leave_tables_isolated: bool = False) -> E:
+def merge_derived_tables(
+    expression: E, leave_tables_isolated: bool = False, schema: Schema | None = None
+) -> E:
     for outer_scope in traverse_scope(expression):
         for subquery in outer_scope.derived_tables:
             from_or_join = subquery.find_ancestor(exp.From, exp.Join)
@@ -115,7 +123,9 @@ def merge_derived_tables(expression: E, leave_tables_isolated: bool = False) -> 
             inner_scope = outer_scope.sources[alias]
             if not isinstance(inner_scope, Scope):
                 continue
-            if _mergeable(outer_scope, inner_scope, leave_tables_isolated, from_or_join):
+            if _mergeable(
+                outer_scope, inner_scope, leave_tables_isolated, from_or_join, schema=schema
+            ):
                 _rename_inner_sources(outer_scope, inner_scope, alias)
                 _merge_from(outer_scope, inner_scope, subquery, alias)
                 _merge_expressions(outer_scope, inner_scope, alias)
@@ -129,29 +139,77 @@ def merge_derived_tables(expression: E, leave_tables_isolated: bool = False) -> 
 
 
 def _mergeable(
-    outer_scope: Scope, inner_scope: Scope, leave_tables_isolated: bool, from_or_join: FromOrJoin
+    outer_scope: Scope,
+    inner_scope: Scope,
+    leave_tables_isolated: bool,
+    from_or_join: FromOrJoin,
+    schema: Schema | None = None,
 ) -> bool:
     """
     Return True if `inner_select` can be merged into outer query.
     """
     inner_select = inner_scope.expression.unnest()
 
-    def _is_a_window_expression_in_unmergable_operation():
+    def _window_projection_blocks_merge():
+        """A window function's result depends on the full row set it sees, so merging the
+        subquery into the outer query is unsafe when:
+          - the outer query filters or joins (WHERE/JOIN), which changes that row set, or
+          - a window column is referenced in an operation that isn't pushed down
+            (GROUP BY, ORDER BY, HAVING, aggregate).
+        """
         window_aliases = {s.alias_or_name for s in inner_select.selects if s.find(exp.Window)}
         if not window_aliases:
             return False
+
+        outer = outer_scope.expression
+        if outer.args.get("where") or outer.args.get("joins"):
+            return True
+
         inner_select_name = from_or_join.alias_or_name
-        unmergable_window_columns = [
-            column
-            for column in outer_scope.columns
-            if column.find_ancestor(
-                exp.Where, exp.Group, exp.Order, exp.Join, exp.Having, exp.AggFunc
-            )
-        ]
         return any(
-            column.table == inner_select_name and column.name in window_aliases
-            for column in unmergable_window_columns
+            column.table == inner_select_name
+            and column.name in window_aliases
+            and column.find_ancestor(exp.Group, exp.Order, exp.Having, exp.AggFunc)
+            for column in outer_scope.columns
         )
+
+    def _literal_group_alias_collision():
+        """A numeric-literal projection in the outer GROUP BY merges to a bare `GROUP BY a`
+        that can collide with a same-named FROM column."""
+        group = outer_scope.expression.args.get("group")
+        if not group:
+            return False
+        inner_name = from_or_join.alias_or_name
+        grouped = {
+            col.name
+            for e in group.expressions
+            for col in e.find_all(exp.Column)
+            if col.table == inner_name
+        }
+        if not grouped:
+            return False
+        literal_grouped = {
+            s.alias_or_name
+            for s in inner_select.selects
+            if s.alias_or_name in grouped and s.unalias().is_number
+        }
+        if not literal_grouped:
+            return False
+        # `GROUP BY a` resolves against the whole merged FROM: inner sources + outer's others.
+        merged_sources = {
+            src for name, (_, src) in outer_scope.selected_sources.items() if name != inner_name
+        }
+        merged_sources.update(src for _, src in inner_scope.selected_sources.values())
+        for source in merged_sources:
+            if isinstance(source, exp.Table):
+                columns = schema.column_names(source) if schema else None
+                if not columns or literal_grouped & set(columns):
+                    return True
+            elif isinstance(source, Scope) and literal_grouped & set(
+                source.expression.named_selects
+            ):
+                return True
+        return False
 
     def _outer_select_joins_on_inner_select_join():
         """
@@ -200,6 +258,21 @@ def _mergeable(
             node = node.parent
         return False
 
+    def _literal_in_order_by():
+        """A numeric-literal projection under a bare ORDER BY key can't merge (would become positional)."""
+        order = outer_scope.expression.args.get("order")
+        if not order:
+            return False
+        inner_name = from_or_join.alias_or_name
+        ordered = {
+            o.this.name
+            for o in order.expressions
+            if isinstance(o.this, exp.Column) and o.this.table == inner_name
+        }
+        return any(
+            s.alias_or_name in ordered and s.unalias().is_number for s in inner_select.selects
+        )
+
     return (
         isinstance(outer_scope.expression, exp.Select)
         and not outer_scope.expression.is_star
@@ -223,7 +296,9 @@ def _mergeable(
             )
         )
         and not _outer_select_joins_on_inner_select_join()
-        and not _is_a_window_expression_in_unmergable_operation()
+        and not _window_projection_blocks_merge()
+        and not _literal_group_alias_collision()
+        and not _literal_in_order_by()
         and not _is_recursive()
         and not (inner_select.args.get("order") and outer_scope.is_union)
         and not isinstance(seq_get(inner_select.expressions, 0), exp.QueryTransform)

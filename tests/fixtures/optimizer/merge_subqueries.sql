@@ -543,3 +543,38 @@ WITH t0 AS (SELECT 5 AS id), t1 AS (SELECT 1 AS id, 'US' AS cid), t2 AS (SELECT 
 # title: Dont replace GROUP and ORDER BY if expression is literal
 WITH t1 AS (SELECT 1 AS col) SELECT a, SUM(b) AS b FROM (SELECT 6 AS a, col AS b FROM t1) AS t GROUP BY a ORDER BY a;
 WITH t1 AS (SELECT 1 AS col) SELECT 6 AS a, SUM(t1.col) AS b FROM t1 AS t1 GROUP BY a ORDER BY a;
+
+# title: Literal projection whose alias collides with a base-table column is not merged into GROUP BY
+SELECT s.a, SUM(s.b) AS b FROM (SELECT 6 AS a, b FROM x) AS s GROUP BY s.a ORDER BY s.a;
+SELECT s.a AS a, SUM(s.b) AS b FROM (SELECT 6 AS a, x.b AS b FROM x AS x) AS s GROUP BY s.a ORDER BY a;
+
+# title: Literal projection colliding with an unmergeable-CTE column is not merged into GROUP BY
+WITH c AS (SELECT DISTINCT a, b FROM x) SELECT s.a, SUM(s.b) AS b FROM (SELECT 6 AS a, b FROM c) AS s GROUP BY s.a ORDER BY s.a;
+WITH c AS (SELECT DISTINCT x.a AS a, x.b AS b FROM x AS x) SELECT s.a AS a, SUM(s.b) AS b FROM (SELECT 6 AS a, c.b AS b FROM c AS c) AS s GROUP BY s.a ORDER BY a;
+
+# title: Literal projection colliding with an outer joined table column is not merged into GROUP BY
+WITH c AS (SELECT DISTINCT x.b AS b FROM x) SELECT s.a, SUM(s.b) AS b FROM (SELECT 6 AS a, b FROM c) AS s CROSS JOIN x GROUP BY s.a ORDER BY s.a;
+WITH c AS (SELECT DISTINCT x.b AS b FROM x AS x) SELECT s.a AS a, SUM(s.b) AS b FROM (SELECT 6 AS a, c.b AS b FROM c AS c) AS s CROSS JOIN x AS x GROUP BY s.a ORDER BY a;
+
+# title: Literal projection is not merged into GROUP BY when a joined table's schema is unknown
+# execute: false
+SELECT s.a, SUM(s.b) AS b FROM (SELECT 6 AS a, y.b AS b FROM y) AS s CROSS JOIN unknown_tbl GROUP BY s.a ORDER BY s.a;
+SELECT s.a AS a, SUM(s.b) AS b FROM (SELECT 6 AS a, y.b AS b FROM y AS y) AS s CROSS JOIN unknown_tbl AS unknown_tbl GROUP BY s.a ORDER BY a;
+
+# title: Window function is not merged when the outer query filters its input rows
+SELECT s.w FROM (SELECT a, ROW_NUMBER() OVER (ORDER BY a) AS w FROM x) AS s WHERE s.a > 5;
+SELECT s.w AS w FROM (SELECT x.a AS a, ROW_NUMBER() OVER (ORDER BY x.a) AS w FROM x AS x) AS s WHERE s.a > 5;
+
+# title: Window function is not merged when the outer query joins, changing its input rows
+SELECT s.w FROM (SELECT b, ROW_NUMBER() OVER (ORDER BY b) AS w FROM x) AS s JOIN y ON s.b = y.b;
+SELECT s.w AS w FROM (SELECT x.b AS b, ROW_NUMBER() OVER (ORDER BY x.b) AS w FROM x AS x) AS s JOIN y AS y ON s.b = y.b;
+
+# title: Numeric-literal projection referenced in ORDER BY is not merged into a positional ORDER BY
+# execute: false
+SELECT s.b FROM (SELECT 6 AS a, b FROM x) AS s ORDER BY s.a;
+SELECT s.b AS b FROM (SELECT 6 AS a, x.b AS b FROM x AS x) AS s ORDER BY s.a;
+
+# title: Numeric-literal ORDER BY key is not merged when a join is present
+# execute: false
+WITH c AS (SELECT DISTINCT b FROM x) SELECT s.b FROM (SELECT 6 AS a, b FROM c) AS s CROSS JOIN x ORDER BY s.a;
+WITH c AS (SELECT DISTINCT x.b AS b FROM x AS x) SELECT s.b AS b FROM (SELECT 6 AS a, c.b AS b FROM c AS c) AS s CROSS JOIN x AS x ORDER BY s.a;

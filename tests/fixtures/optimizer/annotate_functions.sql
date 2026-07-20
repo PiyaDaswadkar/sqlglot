@@ -193,6 +193,9 @@ BINARY;
 ARRAY_CONTAINS(tbl.array_col, '1');
 BOOLEAN;
 
+REPEAT(tbl.str_col, tbl.int_col);
+VARCHAR;
+
 --------------------------------------
 -- Spark2 / Spark3 / Databricks
 --------------------------------------
@@ -227,6 +230,22 @@ STRING;
 
 # dialect: spark2, spark, databricks
 REGEXP_EXTRACT(tbl.bin_col, pattern, 0);
+STRING;
+
+# dialect: hive, spark2, spark, databricks
+REGEXP_REPLACE(tbl.str_col, pattern, replacement);
+STRING;
+
+# dialect: spark, databricks
+REGEXP_REPLACE(tbl.str_col, pattern, replacement, 2);
+STRING;
+
+# dialect: spark2, spark, databricks
+REGEXP_REPLACE(tbl.bin_col, pattern, replacement);
+STRING;
+
+# dialect: spark, databricks
+REGEXP_REPLACE(tbl.bin_col, pattern, replacement, 2);
 STRING;
 
 # dialect: spark2, spark, databricks
@@ -991,6 +1010,54 @@ INT;
 # dialect: databricks
 REGEXP_EXTRACT_ALL(tbl.str_col, 'pattern');
 ARRAY<VARCHAR>;
+
+# dialect: spark2, spark, databricks
+TO_JSON(STRUCT(1, 'hello'));
+STRING;
+
+# dialect: hive, databricks
+TO_JSON(PARSE_JSON('{"key": 123}'));
+STRING;
+
+# dialect: hive, spark2, spark, databricks
+GET_JSON_OBJECT('{"a":1}', '$.a');
+STRING;
+
+# dialect: hive, spark2, spark, databricks
+STR_TO_MAP('a:1,b:2', ',', ':');
+MAP<STRING, STRING>;
+
+# dialect: databricks
+REGEXP_INSTR(tbl.str_col, 'pattern');
+INT;
+
+# dialect: databricks
+REGEXP_LIKE(tbl.str_col, 'pattern');
+BOOLEAN;
+
+# dialect: databricks
+REGEXP_SUBSTR(tbl.str_col, 'pattern');
+VARCHAR;
+
+# dialect: databricks
+REGR_AVGX(tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_AVGX(tbl.int_col, tbl.int_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_AVGX(ALL tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_AVGX(DISTINCT tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_AVGX(tbl.double_col, tbl.double_col) OVER (PARTITION BY 1);
+DOUBLE;
 
 # dialect: hive
 tbl.bigint DIV tbl.bigint;
@@ -4196,6 +4263,26 @@ DOUBLE;
 REGR_AVGY(tbl.decfloat_col, tbl.decfloat_col);
 DECFLOAT;
 
+# dialect: databricks
+REGR_AVGY(tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_AVGY(tbl.int_col, tbl.int_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_AVGY(ALL tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_AVGY(DISTINCT tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_AVGY(tbl.double_col, tbl.double_col) OVER (PARTITION BY 1);
+DOUBLE;
+
 # dialect: snowflake
 REGR_COUNT(tbl.double_col, tbl.double_col);
 DOUBLE;
@@ -4211,6 +4298,26 @@ DOUBLE;
 # dialect: snowflake
 REGR_COUNT(tbl.decfloat_col, tbl.decfloat_col);
 DECFLOAT;
+
+# dialect: databricks
+REGR_COUNT(tbl.double_col, tbl.double_col);
+BIGINT;
+
+# dialect: databricks
+REGR_COUNT(tbl.int_col, tbl.int_col);
+BIGINT;
+
+# dialect: databricks
+REGR_COUNT(ALL tbl.double_col, tbl.double_col);
+BIGINT;
+
+# dialect: databricks
+REGR_COUNT(DISTINCT tbl.double_col, tbl.double_col);
+BIGINT;
+
+# dialect: databricks
+REGR_COUNT(tbl.double_col, tbl.double_col) OVER (PARTITION BY 1);
+BIGINT;
 
 # dialect: snowflake
 REGR_INTERCEPT(tbl.double_col, tbl.double_col);
@@ -4228,6 +4335,26 @@ DOUBLE;
 REGR_INTERCEPT(tbl.decfloat_col, tbl.decfloat_col);
 DECFLOAT;
 
+# dialect: databricks
+REGR_INTERCEPT(tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_INTERCEPT(tbl.int_col, tbl.int_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_INTERCEPT(ALL tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_INTERCEPT(DISTINCT tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_INTERCEPT(tbl.double_col, tbl.double_col) OVER (PARTITION BY 1);
+DOUBLE;
+
 # dialect: snowflake
 REGR_R2(tbl.double_col, tbl.double_col);
 DOUBLE;
@@ -4243,6 +4370,26 @@ DOUBLE;
 # dialect: snowflake
 REGR_R2(tbl.decfloat_col, tbl.decfloat_col);
 DECFLOAT;
+
+# dialect: databricks
+REGR_R2(tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_R2(tbl.int_col, tbl.int_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_R2(ALL tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_R2(DISTINCT tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_R2(tbl.double_col, tbl.double_col) OVER (PARTITION BY 1);
+DOUBLE;
 
 # dialect: snowflake
 REGR_SXX(tbl.double_col, tbl.double_col);
@@ -4292,6 +4439,66 @@ DOUBLE;
 REGR_SYY(tbl.decfloat_col, tbl.decfloat_col);
 DECFLOAT;
 
+# dialect: databricks
+REGR_SXX(tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SXX(tbl.int_col, tbl.int_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SXX(ALL tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SXX(DISTINCT tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SXX(tbl.double_col, tbl.double_col) OVER (PARTITION BY 1);
+DOUBLE;
+
+# dialect: databricks
+REGR_SXY(tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SXY(tbl.int_col, tbl.int_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SXY(ALL tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SXY(DISTINCT tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SXY(tbl.double_col, tbl.double_col) OVER (PARTITION BY 1);
+DOUBLE;
+
+# dialect: databricks
+REGR_SYY(tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SYY(tbl.int_col, tbl.int_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SYY(ALL tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SYY(DISTINCT tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SYY(tbl.double_col, tbl.double_col) OVER (PARTITION BY 1);
+DOUBLE;
+
 # dialect: snowflake
 REGR_SLOPE(tbl.double_col, tbl.double_col);
 DOUBLE;
@@ -4307,6 +4514,70 @@ DOUBLE;
 # dialect: snowflake
 REGR_SLOPE(tbl.decfloat_col, tbl.decfloat_col);
 DECFLOAT;
+
+# dialect: databricks
+REGR_SLOPE(tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SLOPE(tbl.int_col, tbl.int_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SLOPE(ALL tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SLOPE(DISTINCT tbl.double_col, tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+REGR_SLOPE(tbl.double_col, tbl.double_col) OVER (PARTITION BY 1);
+DOUBLE;
+
+# dialect: databricks
+RINT(tbl.double_col);
+DOUBLE;
+
+# dialect: databricks
+RINT(tbl.float_col);
+DOUBLE;
+
+# dialect: databricks
+RINT(tbl.int_col);
+DOUBLE;
+
+# dialect: databricks
+RINT(tbl.bigint_col);
+DOUBLE;
+
+# dialect: databricks
+RPAD(tbl.str_col, 5);
+STRING;
+
+# dialect: databricks
+RPAD(tbl.bin_col, 5);
+BINARY;
+
+# dialect: databricks
+RTRIM(tbl.str_col);
+STRING;
+
+# dialect: databricks
+RTRIM('x', tbl.str_col);
+STRING;
+
+# dialect: databricks
+SEARCH(tbl.str_col, 'foo');
+BOOLEAN;
+
+# dialect: databricks
+SEARCH((tbl.str_col, tbl.str_col), 'foo');
+BOOLEAN;
+
+# dialect: databricks
+SEARCH(tbl.str_col, 'foo', mode => 'word');
+BOOLEAN;
 
 # dialect: snowflake
 REGR_VALX(NULL, 2.0);
@@ -6204,6 +6475,109 @@ VARCHAR;
 FLOOR(tbl.double_col);
 BIGINT;
 
+INSERT(tbl.str_col, tbl.int_col, tbl.int_col, tbl.str_col);
+VARCHAR;
+
+# dialect: mysql
+HEX(tbl.str_col);
+VARCHAR;
+
+# dialect: mysql
+LPAD(tbl.str_col, tbl.int_col, tbl.str_col);
+VARCHAR;
+
+# dialect: mysql
+LPAD(tbl.bin_col, tbl.int_col, tbl.str_col);
+BINARY;
+
+# dialect: mysql
+RPAD(tbl.str_col, tbl.int_col, tbl.str_col);
+VARCHAR;
+
+# dialect: mysql
+RPAD(tbl.bin_col, tbl.int_col, tbl.str_col);
+BINARY;
+
+# dialect: mysql
+LEFT(tbl.str_col, tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+LEFT(tbl.bin_col, tbl.int_col);
+BINARY;
+
+# dialect: mysql
+LOCALTIMESTAMP;
+DATETIME;
+
+# dialect: mysql
+LOCALTIMESTAMP();
+DATETIME;
+
+# dialect: mysql
+LOCALTIMESTAMP(3);
+DATETIME;
+
+# dialect: mysql
+REVERSE(tbl.str_col);
+VARCHAR;
+
+# dialect: mysql
+REVERSE(tbl.bin_col);
+BINARY;
+
+# dialect: mysql
+REVERSE(tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+FORMAT(tbl.double_col, tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+FORMAT(tbl.double_col, tbl.int_col, tbl.str_col);
+VARCHAR;
+
+# dialect: mysql
+MAKETIME(tbl.int_col, tbl.int_col, tbl.int_col);
+TIME;
+
+# dialect: mysql
+MAKETIME('12', '15', '30');
+TIME;
+
+# dialect: mysql
+MINUTE(tbl.timestamp_col);
+INT;
+
+# dialect: mysql
+MINUTE(tbl.str_col);
+INT;
+
+# dialect: mysql
+MINUTE(tbl.int_col);
+INT;
+
+# dialect: mysql
+RIGHT(tbl.str_col, tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+RIGHT(tbl.bin_col, tbl.int_col);
+BINARY;
+
+# dialect: mysql
+TRUNCATE(tbl.bigint_col, tbl.int_col);
+BIGINT;
+
+# dialect: mysql
+TRUNCATE(tbl.double_col, tbl.int_col);
+DOUBLE;
+
+# dialect: mysql
+TRUNCATE(tbl.str_col, tbl.int_col);
+DOUBLE;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
@@ -6358,6 +6732,10 @@ DOUBLE;
 
 # dialect: duckdb
 FORMAT('Benchmark "{}" took {} seconds', 'CSV', 42);
+VARCHAR;
+
+# dialect: duckdb
+DECODE(tbl.str_col);
 VARCHAR;
 
 # dialect: duckdb
@@ -6523,6 +6901,23 @@ VARCHAR;
 # dialect: clickhouse
 MD5(tbl.str_col);
 FIXEDSTRING(16);
+
+# dialect: clickhouse
+CORR(tbl.int_col, tbl.int_col);
+FLOAT64;
+
+# dialect: clickhouse
+CORR(tbl.float_col, tbl.float_col);
+FLOAT64;
+
+# dialect: clickhouse
+CORR(tbl.int_col, tbl.float_col);
+FLOAT64;
+
+# dialect: clickhouse
+CORR(tbl.float_col, tbl.int_col);
+FLOAT64;
+
 --------------------------------------
 -- IGNORE NULLS / RESPECT NULLS
 --------------------------------------
