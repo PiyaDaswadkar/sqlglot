@@ -508,6 +508,15 @@ class TestDuckDB(Validator):
         self.validate_identity("SELECT LIST_TRANSFORM([5, NULL, 6], LAMBDA x : COALESCE(x, 0) + 1)")
         self.validate_identity("SELECT LIST_TRANSFORM(nbr, LAMBDA x : x + 1) FROM article AS a")
         self.validate_identity("SELECT * FROM my_ducklake.demo AT (VERSION => 2)")
+        self.validate_identity(
+            "SELECT * FROM t1 AS a AT (VERSION => 3) JOIN t2 AS b AT (TIMESTAMP => NOW() - INTERVAL '1' WEEK) ON a.id = b.id"
+        )
+        self.validate_all(
+            "SELECT * FROM t1 AS a AT (TIMESTAMP => CAST('2024-01-01' AS TIMESTAMP))",
+            read={
+                "snowflake": "SELECT * FROM t1 AT (TIMESTAMP => '2024-01-01'::TIMESTAMP) AS a",
+            },
+        )
         self.validate_identity("SELECT TO_BINARY('test')")
         self.validate_identity("SELECT UUIDV7()")
         self.validate_identity("SELECT TRY(LOG(0))")

@@ -426,6 +426,9 @@ class Generator:
     # The keyword to use when specifying the seed of a sample clause
     TABLESAMPLE_SEED_KEYWORD = "SEED"
 
+    # Whether the historical data clause (AT ... / BEFORE ...) is generated after the table alias
+    HISTORICAL_DATA_POST_ALIAS = False
+
     # Whether COLLATE is a function instead of a binary operator
     COLLATE_IS_FUNC = False
 
@@ -2423,7 +2426,10 @@ class Generator:
 
         when = self.sql(expression, "when")
         if when:
-            table = f"{table} {when}"
+            if self.HISTORICAL_DATA_POST_ALIAS:
+                alias = f"{alias} {when}"
+            else:
+                table = f"{table} {when}"
 
         changes = self.sql(expression, "changes")
         changes = f" {changes}" if changes else ""

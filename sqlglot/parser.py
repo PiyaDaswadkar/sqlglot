@@ -4936,6 +4936,11 @@ class Parser:
         if alias:
             this.set("alias", alias)
 
+            # DuckDB requires the time-travel clause to come after the alias, e.g.
+            # SELECT * FROM t AS a AT (VERSION => 1)
+            if isinstance(this, exp.Table) and not this.args.get("when"):
+                this.set("when", self._parse_historical_data())
+
         if self._match(TokenType.INDEXED_BY):
             this.set("indexed", self._parse_table_parts())
         elif self._match_text_seq("NOT", "INDEXED"):
