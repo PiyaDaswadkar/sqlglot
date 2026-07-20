@@ -374,6 +374,20 @@ class TestDuckDB(Validator):
             },
         )
         self.validate_all(
+            "SELECT c, COUNT(*) FILTER (WHERE b > 0) OVER (PARTITION BY c) FROM t",
+            write={
+                "duckdb": "SELECT c, COUNT(*) FILTER(WHERE b > 0) OVER (PARTITION BY c) FROM t",
+                "snowflake": "SELECT c, COUNT_IF(b > 0) OVER (PARTITION BY c) FROM t",
+            },
+        )
+        self.validate_all(
+            "SELECT COUNT(t.*) FILTER (WHERE b > 0) FROM t",
+            write={
+                "duckdb": "SELECT COUNT(t.*) FILTER(WHERE b > 0) FROM t",
+                "snowflake": "SELECT COUNT_IF(b > 0) FROM t",
+            },
+        )
+        self.validate_all(
             "SELECT COUNT(DISTINCT a) FILTER (WHERE b > 0) FROM t",
             write={
                 "duckdb": "SELECT COUNT(DISTINCT a) FILTER(WHERE b > 0) FROM t",
