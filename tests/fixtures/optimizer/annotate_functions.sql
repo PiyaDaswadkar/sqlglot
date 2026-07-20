@@ -6563,6 +6563,18 @@ VARCHAR;
 RIGHT(tbl.bin_col, tbl.int_col);
 BINARY;
 
+# dialect: mysql
+TRUNCATE(tbl.int_col, tbl.int_col);
+BIGINT;
+
+# dialect: mysql
+TRUNCATE(tbl.double_col, tbl.int_col);
+DOUBLE;
+
+# dialect: mysql
+TRUNCATE(tbl.str_col, tbl.int_col);
+DOUBLE;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
