@@ -3462,11 +3462,18 @@ class DuckDBGenerator(generator.Generator):
 
     def arrayconcatagg_sql(self, expression: exp.ArrayConcatAgg) -> str:
         this = expression.this
+
+        if isinstance(this, exp.Limit):
+            self.unsupported("LIMIT in ARRAY_CONCAT_AGG cannot be transpiled to DuckDB")
+            this = this.this
+
+        inner = this.this if isinstance(this, exp.Order) else this
+
         return self.func(
             "FLATTEN",
             exp.Filter(
                 this=exp.ArrayAgg(this=this),
-                expression=exp.Where(this=this.copy().is_(exp.null()).not_()),
+                expression=exp.Where(this=inner.copy().is_(exp.null()).not_()),
             ),
         )
 
