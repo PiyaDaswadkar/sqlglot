@@ -3460,6 +3460,16 @@ class DuckDBGenerator(generator.Generator):
             )
         )
 
+    def arrayconcatagg_sql(self, expression: exp.ArrayConcatAgg) -> str:
+        this = expression.this
+        return self.func(
+            "FLATTEN",
+            exp.Filter(
+                this=exp.ArrayAgg(this=this),
+                expression=exp.Where(this=this.copy().is_(exp.null()).not_()),
+            ),
+        )
+
     def arrayunionagg_sql(self, expression: exp.ArrayUnionAgg) -> str:
         self.unsupported("ARRAY_UNION_AGG is not supported in DuckDB")
         return self.function_fallback_sql(expression)
