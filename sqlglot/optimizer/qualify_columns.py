@@ -861,7 +861,10 @@ def _expand_stars(
             if pseudocolumns and dialect.EXCLUDES_PSEUDOCOLUMNS_FROM_STAR:
                 columns = [name for name in columns if name.upper() not in pseudocolumns]
 
-            if not columns or "*" in columns:
+            # If a source exposes duplicate output names (e.g. a derived table re-exposing
+            # colliding star-expanded columns), expanding this star would produce ambiguous
+            # projections, so we leave it unexpanded.
+            if not columns or "*" in columns or len(columns) != len(set(columns)):
                 return
 
             table_id = id(table)
