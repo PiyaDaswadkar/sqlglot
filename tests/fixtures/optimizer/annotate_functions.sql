@@ -6575,6 +6575,10 @@ DOUBLE;
 TRUNCATE(tbl.str_col, tbl.int_col);
 DOUBLE;
 
+# dialect: mysql
+CONVERT_TZ('2024-01-01 12:00:00', '+00:00', '+05:30');
+DATETIME;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------

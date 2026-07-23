@@ -37,6 +37,7 @@ EXPRESSION_METADATA = {
         expr_type: {"returns": exp.DType.DATETIME}
         for expr_type in {
             exp.CurrentTimestamp,
+            exp.ConvertTimezone,
             exp.Localtime,
             exp.Localtimestamp,
         }
