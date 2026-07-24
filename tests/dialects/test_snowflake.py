@@ -4643,6 +4643,10 @@ WHERE
             pretty=True,
         )
 
+        self.validate_identity(
+            "SELECT value FROM TABLE(FLATTEN(input => SELECT PARSE_JSON('[1, 2]')))"
+        )
+
         # All examples from https://docs.snowflake.com/en/sql-reference/functions/flatten.html#syntax
         self.validate_all(
             "SELECT * FROM TABLE(FLATTEN(input => parse_json('[1, ,77]'))) f",
