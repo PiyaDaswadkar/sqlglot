@@ -40,6 +40,7 @@ EXPRESSION_METADATA = {
             exp.ConvertTimezone,
             exp.Localtime,
             exp.Localtimestamp,
+            exp.UtcTimestamp,
         }
     },
     **{
