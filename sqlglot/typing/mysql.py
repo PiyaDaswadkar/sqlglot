@@ -58,6 +58,7 @@ EXPRESSION_METADATA = {
             exp.Replace,
             exp.Stuff,  # insert function
             exp.SubstringIndex,
+            exp.RegexpSubstr,
         }
     },
     **{
