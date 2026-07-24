@@ -6599,6 +6599,22 @@ DATETIME;
 UTC_TIMESTAMP(6);
 DATETIME;
 
+# dialect: mysql
+UNHEX(tbl.str_col);
+VARBINARY;
+
+# dialect: mysql
+UNHEX(tbl.bin_col);
+VARBINARY;
+
+# dialect: mysql
+UNHEX(tbl.int_col);
+VARBINARY;
+
+# dialect: mysql
+UNHEX(tbl.bigint_col);
+VARBINARY;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
