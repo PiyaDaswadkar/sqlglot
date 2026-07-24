@@ -6615,6 +6615,14 @@ VARBINARY;
 UNHEX(tbl.bigint_col);
 VARBINARY;
 
+# dialect: mysql
+SUBSTRING_INDEX(tbl.str_col, '.', tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+SUBSTRING_INDEX(tbl.str_col, '.', -tbl.int_col);
+VARCHAR;
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
