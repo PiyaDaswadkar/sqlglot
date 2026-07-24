@@ -57,6 +57,7 @@ EXPRESSION_METADATA = {
             exp.NumberToStr,  # format()
             exp.Replace,
             exp.Stuff,  # insert function
+            exp.SubstringIndex,
         }
     },
     **{

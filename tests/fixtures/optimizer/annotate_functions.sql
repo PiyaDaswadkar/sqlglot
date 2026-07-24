@@ -6599,6 +6599,11 @@ DATETIME;
 UTC_TIMESTAMP(6);
 DATETIME;
 
+# dialect: mysql
+SUBSTRING_INDEX(tbl.str_col, '.', tbl.int_col);
+VARCHAR;
+
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
