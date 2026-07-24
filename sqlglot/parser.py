@@ -1019,7 +1019,10 @@ class Parser:
             )
         ),
         TokenType.FARROW: lambda self, expressions: self.expression(
-            exp.Kwarg(this=exp.var(expressions[0].name), expression=self._parse_disjunction())
+            exp.Kwarg(
+                this=exp.var(expressions[0].name),
+                expression=self._parse_disjunction() or self._parse_select(),
+            )
         ),
     }
 

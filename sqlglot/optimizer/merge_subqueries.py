@@ -103,9 +103,7 @@ def merge_ctes(
         if _mergeable(outer_scope, inner_scope, leave_tables_isolated, from_or_join):
             alias = table.alias_or_name
             _rename_inner_sources(outer_scope, inner_scope, alias)
-            _merge_from(
-                outer_scope, inner_scope, t.cast(t.Union[exp.Subquery, exp.Table], table), alias
-            )
+            _merge_from(outer_scope, inner_scope, table, alias)
             _merge_expressions(outer_scope, inner_scope, alias)
             _merge_order(outer_scope, inner_scope)
             _merge_joins(outer_scope, inner_scope, from_or_join)
@@ -352,7 +350,7 @@ def _rename_inner_sources(outer_scope: Scope, inner_scope: Scope, alias: str) ->
 def _merge_from(
     outer_scope: Scope,
     inner_scope: Scope,
-    node_to_replace: exp.Subquery | exp.Table,
+    node_to_replace: exp.Selectable,
     alias: str,
 ) -> None:
     """
