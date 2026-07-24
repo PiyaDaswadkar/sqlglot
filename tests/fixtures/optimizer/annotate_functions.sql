@@ -6583,6 +6583,9 @@ DATETIME;
 UTC_DATE();
 DATE;
 
+# dialect: mysql
+UTC_TIME();
+TIME;
 
 --------------------------------------
 -- DuckDB
