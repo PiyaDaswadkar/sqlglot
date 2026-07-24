@@ -9,15 +9,8 @@ if t.TYPE_CHECKING:
     from sqlglot.optimizer.annotate_types import TypeAnnotator
 
 
-def _annotate_reverse(
-    self: TypeAnnotator,
-    expression: exp.Reverse,
-) -> exp.Reverse:
-    if expression.this.is_type(
-        exp.DType.BINARY,
-        exp.DType.VARBINARY,
-        exp.DType.UNKNOWN,
-    ):
+def _annotate_reverse(self: TypeAnnotator, expression: exp.Reverse) -> exp.Reverse:
+    if expression.this.is_type(exp.DType.BINARY, exp.DType.VARBINARY, exp.DType.UNKNOWN):
         self._annotate_by_args(expression, "this")
     else:
         self._set_type(expression, exp.DType.VARCHAR)
@@ -25,10 +18,7 @@ def _annotate_reverse(
     return expression
 
 
-def _annotate_truncate(
-    self: TypeAnnotator,
-    expression: exp.Trunc,
-) -> exp.Expr:
+def _annotate_truncate(self: TypeAnnotator, expression: exp.Trunc) -> exp.Expr:
     if expression.this.is_type(*exp.DataType.TEXT_TYPES):
         return self._set_type(expression, exp.DType.DOUBLE)
 
@@ -68,12 +58,6 @@ EXPRESSION_METADATA = {
             exp.Replace,
             exp.Stuff,  # insert function
             exp.SubstringIndex,
-        }
-    },
-    **{
-        expr_type: {"returns": exp.DType.VARBINARY}
-        for expr_type in {
-            exp.Unhex,
         }
     },
     **{
