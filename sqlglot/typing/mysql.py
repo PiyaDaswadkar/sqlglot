@@ -43,6 +43,12 @@ EXPRESSION_METADATA = {
         }
     },
     **{
+        expr_type: {"returns": exp.DType.DATE}
+        for expr_type in {
+            exp.UtcDate,
+        }
+    },
+    **{
         expr_type: {"returns": exp.DType.VARCHAR}
         for expr_type in {
             exp.Elt,
