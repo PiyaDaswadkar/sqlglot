@@ -72,6 +72,7 @@ EXPRESSION_METADATA = {
         expr_type: {"returns": exp.DType.TIME}
         for expr_type in {
             exp.TimeFromParts,
+            exp.UtcTime,
         }
     },
     **{
