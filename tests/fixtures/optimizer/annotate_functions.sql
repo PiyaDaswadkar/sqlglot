@@ -6619,6 +6619,21 @@ VARBINARY;
 UNHEX(tbl.bigint_col);
 VARBINARY;
 
+# dialect: mysql
+REGEXP_SUBSTR(tbl.str_col, tbl.str_col);
+VARCHAR;
+
+# dialect: mysql
+REGEXP_SUBSTR(tbl.str_col, tbl.str_col, tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+REGEXP_SUBSTR(tbl.str_col, tbl.str_col, tbl.int_col, tbl.int_col);
+VARCHAR;
+
+# dialect: mysql
+REGEXP_SUBSTR(tbl.str_col, tbl.str_col, tbl.int_col, tbl.int_col, tbl.str_col);
+VARCHAR;
 --------------------------------------
 -- DuckDB
 --------------------------------------
