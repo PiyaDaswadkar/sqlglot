@@ -6634,6 +6634,24 @@ VARCHAR;
 # dialect: mysql
 REGEXP_SUBSTR(tbl.str_col, tbl.str_col, tbl.int_col, tbl.int_col, tbl.str_col);
 VARCHAR;
+
+# dialect: mysql
+REGEXP_REPLACE(tbl.str_col, tbl.str_col, tbl.str_col);
+LONGTEXT;
+
+# dialect: mysql
+REGEXP_REPLACE(tbl.str_col, tbl.str_col, tbl.str_col, tbl.int_col);
+LONGTEXT;
+
+# dialect: mysql
+REGEXP_REPLACE(tbl.str_col, tbl.str_col, tbl.str_col, tbl.int_col, tbl.int_col);
+LONGTEXT;
+
+# dialect: mysql
+REGEXP_REPLACE(tbl.str_col, tbl.str_col, tbl.str_col, tbl.int_col, tbl.int_col,  tbl.str_col);
+LONGTEXT;
+
+
 --------------------------------------
 -- DuckDB
 --------------------------------------
